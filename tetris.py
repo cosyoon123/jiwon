@@ -5,12 +5,13 @@ import sys
 pygame.init()
 
 # 화면 설정
-CELL = 35
+CELL = 46
 COLS = 10
 ROWS = 20
-SIDEBAR = 220
+SIDEBAR = 286
+HEADER = 78
 WIDTH = COLS * CELL + SIDEBAR
-HEIGHT = ROWS * CELL + 60
+HEIGHT = ROWS * CELL + HEADER
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("테트리스 - 어린이용 🎮")
@@ -18,13 +19,13 @@ clock = pygame.time.Clock()
 
 # 한글 폰트 (없으면 기본 폰트)
 try:
-    font_big   = pygame.font.SysFont("malgun gothic", 32, bold=True)
-    font_mid   = pygame.font.SysFont("malgun gothic", 24, bold=True)
-    font_small = pygame.font.SysFont("malgun gothic", 18)
+    font_big   = pygame.font.SysFont("malgun gothic", 42, bold=True)
+    font_mid   = pygame.font.SysFont("malgun gothic", 31, bold=True)
+    font_small = pygame.font.SysFont("malgun gothic", 23)
 except Exception:
-    font_big   = pygame.font.SysFont(None, 36, bold=True)
-    font_mid   = pygame.font.SysFont(None, 28, bold=True)
-    font_small = pygame.font.SysFont(None, 22)
+    font_big   = pygame.font.SysFont(None, 47, bold=True)
+    font_mid   = pygame.font.SysFont(None, 36, bold=True)
+    font_small = pygame.font.SysFont(None, 29)
 
 # 색상
 BG        = (30, 30, 50)
@@ -120,14 +121,14 @@ def clear_lines(board):
 
 def draw_block(surface, color, gx, gy, alpha=255):
     x = gx * CELL + 1
-    y = gy * CELL + 1 + 60
+    y = gy * CELL + 1 + HEADER
     rect = pygame.Rect(x, y, CELL - 2, CELL - 2)
     r, g, b = color
     s = pygame.Surface((CELL - 2, CELL - 2), pygame.SRCALPHA)
     s.fill((r, g, b, alpha))
     # 하이라이트
-    pygame.draw.rect(s, (min(r+60,255), min(g+60,255), min(b+60,255)), (0, 0, CELL-2, 6))
-    pygame.draw.rect(s, (max(r-60,0), max(g-60,0), max(b-60,0)), (0, CELL-8, CELL-2, 6))
+    pygame.draw.rect(s, (min(r+60,255), min(g+60,255), min(b+60,255)), (0, 0, CELL-2, 8))
+    pygame.draw.rect(s, (max(r-60,0), max(g-60,0), max(b-60,0)), (0, CELL-10, CELL-2, 8))
     surface.blit(s, (x, y))
 
 
@@ -140,7 +141,7 @@ def draw_ghost(surface, board, piece):
         for c, cell in enumerate(row):
             if cell and ghost["y"] + r != piece["y"] + r:
                 x = (ghost["x"] + c) * CELL + 1
-                y = (ghost["y"] + r) * CELL + 1 + 60
+                y = (ghost["y"] + r) * CELL + 1 + HEADER
                 s = pygame.Surface((CELL-2, CELL-2), pygame.SRCALPHA)
                 s.fill((200, 200, 200, 70))
                 surface.blit(s, (x, y))
@@ -152,7 +153,7 @@ def draw_board(surface, board):
             if board[r][c]:
                 draw_block(surface, board[r][c], c, r)
             else:
-                rect = pygame.Rect(c * CELL, r * CELL + 60, CELL, CELL)
+                rect = pygame.Rect(c * CELL, r * CELL + HEADER, CELL, CELL)
                 pygame.draw.rect(surface, GRID_COL, rect, 1)
 
 
@@ -169,27 +170,27 @@ def draw_sidebar(surface, next_p, score, level, lines, combo):
 
     # 제목
     title = font_big.render("테트리스", True, YELLOW)
-    surface.blit(title, (sx + 10, 15))
+    surface.blit(title, (sx + 13, 20))
 
     # 점수판
-    y = 80
+    y = 104
     for label, value in [("점수", score), ("레벨", level), ("줄수", lines)]:
         lbl = font_mid.render(label, True, CYAN)
         val = font_big.render(str(value), True, WHITE)
-        surface.blit(lbl, (sx + 10, y))
-        surface.blit(val, (sx + 10, y + 28))
-        y += 75
+        surface.blit(lbl, (sx + 13, y))
+        surface.blit(val, (sx + 13, y + 36))
+        y += 98
 
     # 콤보
     if combo > 1:
         combo_txt = font_mid.render(f"콤보 x{combo}!", True, YELLOW)
-        surface.blit(combo_txt, (sx + 10, y))
-    y += 50
+        surface.blit(combo_txt, (sx + 13, y))
+    y += 65
 
     # 다음 블록
     nxt_lbl = font_mid.render("다음 블록", True, CYAN)
-    surface.blit(nxt_lbl, (sx + 10, y))
-    y += 34
+    surface.blit(nxt_lbl, (sx + 13, y))
+    y += 44
     s = next_p["shape"]
     bw = len(s[0]) * CELL
     bh = len(s) * CELL
@@ -206,7 +207,7 @@ def draw_sidebar(surface, next_p, score, level, lines, combo):
                 pygame.draw.rect(surface, (min(cr+60,255), min(cg+60,255), min(cb+60,255)), rect, 2, border_radius=6)
 
     # 조작법
-    y2 = HEIGHT - 165
+    y2 = HEIGHT - 215
     guide = [
         "[ 조작 방법 ]",
         "← → : 이동",
@@ -217,8 +218,8 @@ def draw_sidebar(surface, next_p, score, level, lines, combo):
     ]
     for line in guide:
         t = font_small.render(line, True, (160, 160, 200))
-        surface.blit(t, (sx + 8, y2))
-        y2 += 22
+        surface.blit(t, (sx + 10, y2))
+        y2 += 29
 
 
 def draw_overlay(surface, text, sub=""):
@@ -226,10 +227,10 @@ def draw_overlay(surface, text, sub=""):
     overlay.fill((0, 0, 0, 160))
     surface.blit(overlay, (0, 0))
     msg = font_big.render(text, True, YELLOW)
-    surface.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT//2 - 50))
+    surface.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT//2 - 65))
     if sub:
         sub_msg = font_mid.render(sub, True, WHITE)
-        surface.blit(sub_msg, (WIDTH//2 - sub_msg.get_width()//2, HEIGHT//2 + 10))
+        surface.blit(sub_msg, (WIDTH//2 - sub_msg.get_width()//2, HEIGHT//2 + 13))
 
 
 def score_for(lines, level):
@@ -336,9 +337,9 @@ def main():
         # 그리기
         screen.fill(BG)
         # 헤더
-        pygame.draw.rect(screen, (20, 20, 40), (0, 0, COLS * CELL, 60))
+        pygame.draw.rect(screen, (20, 20, 40), (0, 0, COLS * CELL, HEADER))
         header = font_mid.render(f"점수: {score}   레벨: {level}", True, YELLOW)
-        screen.blit(header, (10, 15))
+        screen.blit(header, (10, 20))
 
         draw_board(screen, board)
         if not game_over:
